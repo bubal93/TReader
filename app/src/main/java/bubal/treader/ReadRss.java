@@ -3,6 +3,8 @@ package bubal.treader;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.os.AsyncTask;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 
 import org.w3c.dom.Document;
@@ -25,11 +27,15 @@ public class ReadRss extends AsyncTask<Void, Void, Void> {
 
     Context context;
     ProgressDialog progressDialog;
+    RecyclerView recyclerView;
+
+    ArrayList<FeedItem> feedItems;
 
     String address = "https://www.sciencemag.org/rss/news_current.xml";
     URL url;
 
-    public ReadRss(Context context) {
+    public ReadRss(Context context, RecyclerView recyclerView) {
+        this.recyclerView = recyclerView;
         this.context = context;
         progressDialog = new ProgressDialog(context);
         progressDialog.setMessage("test");
@@ -45,6 +51,10 @@ public class ReadRss extends AsyncTask<Void, Void, Void> {
     protected void onPostExecute(Void aVoid) {
         super.onPostExecute(aVoid);
         progressDialog.dismiss();
+
+        NewsAdapter adapter = new NewsAdapter(context, feedItems);
+        recyclerView.setLayoutManager(new LinearLayoutManager(context));
+        recyclerView.setAdapter(adapter);
     }
 
 
@@ -60,7 +70,7 @@ public class ReadRss extends AsyncTask<Void, Void, Void> {
 
         if (data != null) {
 
-            ArrayList<FeedItem> feedItems = new ArrayList<>();
+            feedItems = new ArrayList<>();
 
             //store root element
             Element root = data.getDocumentElement();
@@ -90,13 +100,14 @@ public class ReadRss extends AsyncTask<Void, Void, Void> {
                             item.setPubDate(current.getTextContent());
                         } else if (current.getNodeName().equalsIgnoreCase("link")) {
                             item.setLink(current.getTextContent());
+                        } else if (current.getNodeName().equalsIgnoreCase("media:thumbnail")) {
+                            //return a thumbnail URL
+                            String url = current.getAttributes().item(0).getTextContent();
+                            item.setThumbnailUrl(url);
                         }
                     }
                     feedItems.add(item);
-                    Log.d("itemTitle", item.getTitle());
-                    Log.d("itemDescription",item.getDescription());
-                    Log.d("itemPubDate",item.getPubDate());
-                    Log.d("itemLink",item.getLink());
+                    Log.d("itemThumb", item.getThumbnailUrl());
                 }
             }
         }
