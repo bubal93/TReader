@@ -5,7 +5,6 @@ import android.content.Context;
 import android.os.AsyncTask;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -38,7 +37,7 @@ public class ReadRss extends AsyncTask<Void, Void, Void> {
         this.recyclerView = recyclerView;
         this.context = context;
         progressDialog = new ProgressDialog(context);
-        progressDialog.setMessage("test");
+        progressDialog.setMessage("Wait...");
     }
 
     @Override
@@ -54,6 +53,7 @@ public class ReadRss extends AsyncTask<Void, Void, Void> {
 
         NewsAdapter adapter = new NewsAdapter(context, feedItems);
         recyclerView.setLayoutManager(new LinearLayoutManager(context));
+        recyclerView.addItemDecoration(new VerticalSpace(25));
         recyclerView.setAdapter(adapter);
     }
 
@@ -107,7 +107,6 @@ public class ReadRss extends AsyncTask<Void, Void, Void> {
                         }
                     }
                     feedItems.add(item);
-                    Log.d("itemThumb", item.getThumbnailUrl());
                 }
             }
         }
